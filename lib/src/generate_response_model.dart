@@ -111,15 +111,17 @@ String camelCase(String word) {
 
 class BintaModelGenerator {
   static void generateResponseModel({required String parentModelName, required Map<String,dynamic> yourJson}) {
-    // debugPrint("======== Starting... Generate Model.... =========");
-
-    writeSomething(json.decode(yourJson), parentModelName);
+    print("======== Starting... Generate Model.... =========");
+    const jsonString = '''{
+    $yourJson
+  ''';
+    writeSomething(json.decode(jsonString), parentModelName);
     if (pendingKeyMap.isNotEmpty) {
       for (int index = 0; index < pendingKeyMap.length; index++) {
         writeSomething(json.decode(pendingValueMap[index]), "${pascalCase(pendingKeyMap[index])}ResponseModel");
       }
     }
-    // debugPrint("======== Finish... Generate Model.... =========");
-    // debugPrint("======== File Name $parentModelName =========");
+    print("======== Finish... Generate Model.... =========");
+    print("======== File Name $parentModelName =========");
   }
 }
