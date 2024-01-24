@@ -1,0 +1,20 @@
+name: binta_model_generator
+description: A Dart package which helps us to generate model class from json or response APIs
+version: 0.0.1
+# repository: https://github.com/my_org/my_repo
+repository: https://github.com/Bintaaaa/binta_model_generator
+issue_tracker: https://github.com/Bintaaaa/binta_model_generator/issues
+homepage: https://github.com/Bintaaaa/binta_model_generator
+documentation: https://github.com/Bintaaaa/binta_model_generator
+
+
+environment:
+  sdk: ^3.1.5
+
+# Add regular dependencies here.
+dependencies:
+  # path: ^1.8.0
+
+dev_dependencies:
+  lints: ^2.0.0
+  test: ^1.21.0
