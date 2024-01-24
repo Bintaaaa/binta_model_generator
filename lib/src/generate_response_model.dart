@@ -110,7 +110,7 @@ String camelCase(String word) {
 }
 
 class BintaModelGenerator {
-  static void generateResponseModel({required String parentModelName, required yourJson}) {
+  static void generateResponseModel({required String parentModelName, required Map<String,dynamic> yourJson}) {
     // debugPrint("======== Starting... Generate Model.... =========");
 
     writeSomething(json.decode(yourJson), parentModelName);
