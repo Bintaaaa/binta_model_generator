@@ -5,6 +5,7 @@ List pendingValueMap = [];
 List pendingKeyMap = [];
 
 void writeSomething(Map<String, dynamic> jsonAfterDecode, String className) {
+  print("======== Starting... Generate Model.... =========");
   final StringBuffer buffer = StringBuffer();
 
   buffer.writeln('import \'package:dependencies/equatable/equatable.dart\';');
@@ -17,7 +18,7 @@ void writeSomething(Map<String, dynamic> jsonAfterDecode, String className) {
   ///build final
   jsonAfterDecode.forEach((key, value) {
     if (value is Map) {
-      buffer.writeln('  final ${pascalCase(key)}? ${camelCase(key)};');
+      buffer.writeln('  final ${pascalCase(key)}ResponseModel? ${camelCase(key)};');
       pendingValueMap.add(json.encode(value));
       pendingKeyMap.add(key);
     } else if (value is List) {
@@ -110,8 +111,7 @@ String camelCase(String word) {
 }
 
 class BintaModelGenerator {
-  static void generateResponseModel({required String parentModelName, required Map<String,dynamic> yourJson}) {
-    print("======== Starting... Generate Model.... =========");
+  static void generateResponseModel({required String parentModelName, required dynamic yourJson}) {
     const jsonString = '''
     $yourJson
   ''';
