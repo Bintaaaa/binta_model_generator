@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-void writeSomething(Map<String, dynamic> jsonAfterDecode, String className) {
+void writeSomething(Map<String, dynamic> jsonAfterDecode, String className, {String outputFile = ""}) {
   List pendingValueMap = [];
   List pendingKeyMap = [];
   print("======== Starting... Generate $className.... =========");
@@ -90,7 +90,8 @@ void writeSomething(Map<String, dynamic> jsonAfterDecode, String className) {
   buffer.writeln("  ];");
 
   buffer.writeln('}');
-  final file = File("${pascalCaseToSnakeCase(className)}.dart");
+  String outputDirectory = outputFile.isEmpty ? '' : "${outputFile}/";
+  final file = File("${outputDirectory}${pascalCaseToSnakeCase(className)}.dart");
   file.writeAsStringSync(buffer.toString());
 
   var lines = file.readAsLinesSync();
@@ -101,7 +102,7 @@ void writeSomething(Map<String, dynamic> jsonAfterDecode, String className) {
 
   if (pendingKeyMap.isNotEmpty) {
     for (int index = 0; index < pendingKeyMap.length; index++) {
-      writeSomething(json.decode(pendingValueMap[index]), "${pascalCase(pendingKeyMap[index])}Model");
+      writeSomething(json.decode(pendingValueMap[index]), "${pascalCase(pendingKeyMap[index])}Model", outputFile: outputFile,);
     }
   }
 }
@@ -141,11 +142,11 @@ String camelCase(String word) {
 }
 
 class BintaModelGenerator {
-  static void generateResponseModel({required String parentModelName, required dynamic yourJson}) {
+  static void generateResponseModel({required String parentModelName, required dynamic yourJson, String outputFile = ""}) {
     String jsonString = '''
     $yourJson
   ''';
-    writeSomething(json.decode(jsonString), '${parentModelName}Model');
+    writeSomething(json.decode(jsonString), '${parentModelName}Model', outputFile: outputFile,);
     print("======== Finish... Generate All Model.... =========");
     // print("======== File Name $parentModelName =========");
   }
