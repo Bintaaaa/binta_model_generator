@@ -1,11 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
-List pendingValueMap = [];
-List pendingKeyMap = [];
-
 void writeSomething(Map<String, dynamic> jsonAfterDecode, String className) {
-  print("======== Starting... Generate Model.... =========");
+  List pendingValueMap = [];
+  List pendingKeyMap = [];
+  print("======== Starting... Generate $className.... =========");
   final StringBuffer buffer = StringBuffer();
 
   buffer.writeln('import \'package:dependencies/equatable/equatable.dart\';');
@@ -13,16 +12,16 @@ void writeSomething(Map<String, dynamic> jsonAfterDecode, String className) {
   buffer.writeln();
 
   ///build class
-  buffer.writeln('class $className extends Equatable{');
+  buffer.writeln('class $className extends Equatable {');
 
   ///build final
   jsonAfterDecode.forEach((key, value) {
     if (value is Map) {
-      buffer.writeln('  final ${pascalCase(key)}ResponseModel? ${camelCase(key)};');
+      buffer.writeln('  final ${pascalCase(key)}Model? ${camelCase(key)};');
       pendingValueMap.add(json.encode(value));
       pendingKeyMap.add(key);
     } else if (value is List) {
-      buffer.writeln('  final List<${pascalCase(key)}>? ${camelCase(key)};');
+      buffer.writeln('  final List<${pascalCase(key)}Model>? ${camelCase(key)};');
       pendingValueMap.add(json.encode(value[0]));
       pendingKeyMap.add(key);
     } else {
@@ -33,46 +32,77 @@ void writeSomething(Map<String, dynamic> jsonAfterDecode, String className) {
   buffer.writeln();
 
   ///constructor
-  buffer.writeln('const $className({');
+  buffer.writeln('  const $className({');
   jsonAfterDecode.forEach((key, value) {
-    buffer.writeln("this.${camelCase(key)},");
+    buffer.writeln("    this.${camelCase(key)},");
   });
-  buffer.writeln('});');
+  buffer.writeln('  });');
+
+  buffer.writeln();
 
   ///factory
-  buffer.writeln('factory $className.fromJson(Map<String, dynamic> json) =>');
-  buffer.writeln(' $className(');
+  buffer.writeln('  factory $className.fromJson(Map<String, dynamic> json) =>');
+  buffer.writeln('    $className(');
   jsonAfterDecode.forEach((key, value) {
     if (value is Map) {
       buffer.writeln(
-        '${camelCase(key)}: ${pascalCase(key)} != null ? ${pascalCase(key)}.fromJson(json[\'$key\']) : null,',
+        '    ${camelCase(key)}: json[\'$key\'] != null ? ${pascalCase(key)}Model.fromJson(json[\'$key\']) : null,',
       );
     } else if (value is List && value.isNotEmpty && value.first is Map) {
       buffer.writeln(
-        '${camelCase(key)}: json[\'$key\'] != null ? List<${pascalCase(key)}>.fromJson(json[\'$key)\']!.map((x) => ${pascalCase(key)}.fromJson(x),),) : [],',
-      );
+          '    ${camelCase(key)}: json[\'$key\'] != null ? List<${pascalCase(key)}Model>.from(json[\'$key\']?.map((x) => ${pascalCase(key)}Model.fromJson(x),),) : [],');
     } else {
-      buffer.writeln('   ${camelCase(key)} : json[\'$key\'],');
+      buffer.writeln('    ${camelCase(key)} : json[\'$key\'],');
     }
   });
-  buffer.writeln(');');
+  buffer.writeln('  );');
+
+  buffer.writeln();
+
+  /// to json
+  buffer.writeln('''  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> json = <String, dynamic>{};''');
+
+  jsonAfterDecode.forEach((key, value) {
+    if (value is Map) {
+      buffer.writeln('    if(json[\'$key\'] != null) {');
+      buffer.writeln('       json[\'$key\'] = ${key}!.toJson();');
+      buffer.writeln('    }');
+    } else if (value is List && value.isNotEmpty && value.first is Map) {
+      buffer.writeln('    if ($key != null) {');
+      buffer.writeln('       json[\'$key\'] = $key!.map((v) => v.toJson()).toList();');
+      buffer.writeln('    }');
+    } else {
+      buffer.writeln('    json[\'$key\'] = ${camelCase(key)};');
+    }
+  });
+  buffer.writeln('    return json;');
+  buffer.writeln('  }');
+
+  buffer.writeln();
 
   buffer.writeln('''
   @override
-  List<Object?> get props =>[
-  ''');
+  List<Object?> get props =>[''');
   jsonAfterDecode.forEach((key, value) {
-    buffer.writeln("${camelCase(key)},");
+    buffer.writeln("    ${camelCase(key)},");
   });
-  buffer.writeln("];");
+  buffer.writeln("  ];");
 
   buffer.writeln('}');
-
-  final file = File("${pascalCaseToSnakeCase(className)}_response_model.dart");
+  final file = File("${pascalCaseToSnakeCase(className)}.dart");
   file.writeAsStringSync(buffer.toString());
+
   var lines = file.readAsLinesSync();
   for (var element in pendingKeyMap) {
-    lines.insert(2, "import '${element}_response_model.dart'");
+    lines.insert(1, "import '${element}_model.dart';");
+  }
+  file.writeAsStringSync(lines.join('\n'));
+
+  if (pendingKeyMap.isNotEmpty) {
+    for (int index = 0; index < pendingKeyMap.length; index++) {
+      writeSomething(json.decode(pendingValueMap[index]), "${pascalCase(pendingKeyMap[index])}Model");
+    }
   }
 }
 
@@ -112,16 +142,11 @@ String camelCase(String word) {
 
 class BintaModelGenerator {
   static void generateResponseModel({required String parentModelName, required dynamic yourJson}) {
-    const jsonString = '''
+    String jsonString = '''
     $yourJson
   ''';
-    writeSomething(json.decode(jsonString), parentModelName);
-    if (pendingKeyMap.isNotEmpty) {
-      for (int index = 0; index < pendingKeyMap.length; index++) {
-        writeSomething(json.decode(pendingValueMap[index]), "${pascalCase(pendingKeyMap[index])}ResponseModel");
-      }
-    }
-    print("======== Finish... Generate Model.... =========");
-    print("======== File Name $parentModelName =========");
+    writeSomething(json.decode(jsonString), '${parentModelName}Model');
+    print("======== Finish... Generate All Model.... =========");
+    // print("======== File Name $parentModelName =========");
   }
 }
