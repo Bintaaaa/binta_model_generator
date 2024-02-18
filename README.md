@@ -31,8 +31,7 @@ for now `binta_model_generator` it's still comingsoon on `pub.dev`
 
 ```yaml
 dependencies:
-  http: ^1.2.1
-  binta_model_generator: ^0.1.0-beta.2
+  binta_model_generator: ^0.1.1
 ```
 
 Next, we need to create new dart file and
