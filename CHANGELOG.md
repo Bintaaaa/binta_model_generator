@@ -1,3 +1,4 @@
-## 1.0.0
+## 0.1.0
 
-- Initial version.
+- Beta Version
+- The Generator is generate class model only with equatable
