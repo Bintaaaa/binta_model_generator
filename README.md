@@ -30,10 +30,9 @@ First, we need to do add `binta_model_generator` to the dependencies of the `pub
 for now `binta_model_generator` it's still comingsoon on `pub.dev`
 
 ```yaml
-  binta_model_generator:
-    git:
-      url: https://github.com/Bintaaaa/binta_model_generator.git
-      ref: master
+dependencies:
+  http: ^1.2.1
+  binta_model_generator: ^0.1.0-beta.2
 ```
 
 Next, we need to create new dart file and
